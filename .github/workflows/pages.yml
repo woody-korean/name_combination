@@ -28,10 +28,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 12
-          cache: npm
+          cache: yarn
+
+      - name: Install Yarn
+        run: npm install --global yarn@1.22.22
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile --non-interactive
 
       - name: Build Gatsby site
         run: |
@@ -43,7 +46,7 @@ jobs:
             export PATH_PREFIX="/${repo_name}"
             export SITE_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io/${repo_name}"
           fi
-          npm run build -- --prefix-paths
+          yarn build --prefix-paths
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
