@@ -33,8 +33,24 @@ jobs:
       - name: Install Yarn
         run: npm install --global yarn@1.22.22
 
+      - name: Restore node modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node12-modules-${{ hashFiles('package.json', 'yarn.lock') }}
+
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --non-interactive
+        run: yarn install --frozen-lockfile --non-interactive --prefer-offline
+
+      - name: Restore Gatsby cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache
+            public
+          key: ${{ runner.os }}-node12-gatsby-${{ hashFiles('package.json', 'yarn.lock', 'gatsby-config.js', 'content/**/*') }}
+          restore-keys: |
+            ${{ runner.os }}-node12-gatsby-
 
       - name: Build Gatsby site
         run: |
