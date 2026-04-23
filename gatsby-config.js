@@ -1,5 +1,11 @@
+const pathPrefix = process.env.PATH_PREFIX || '/';
+const siteUrl = process.env.SITE_URL || 'https://bluewings.github.io/';
+const repository = process.env.GITHUB_REPOSITORY || 'bluewings/dev-dad';
+const repositoryUrl = `https://github.com/${repository}`;
+const repositoryOwner = repository.split('/')[0];
+
 module.exports = {
-  // pathPrefix: '/',
+  pathPrefix,
   // Customize your site metadata:
   siteMetadata: {
     title: [
@@ -17,11 +23,11 @@ module.exports = {
         "I am a developer dad with a son who dreams of a developer.\nI'm interested in data visualization and enjoy creating fun programs.",
       ],
     ],
-    siteUrl: `https://bluewings.github.io/`,
+    siteUrl,
     social: [
       {
         name: 'GitHub',
-        url: 'https://github.com/bluewings',
+        url: `https://github.com/${repositoryOwner}`,
       },
     ],
   },
@@ -32,7 +38,7 @@ module.exports = {
       options: {
         langKeyDefault: 'ko',
         editOnGithub: {
-          url: 'https://github.com/bluewings/dev-dad',
+          url: repositoryUrl,
           directory: '',
           branch: 'master',
         },

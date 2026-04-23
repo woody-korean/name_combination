@@ -7,6 +7,7 @@ import Octicon from 'react-octicon';
 import Clipboard from 'react-clipboard.js';
 import { getScore, shuffle } from './util';
 import CalcTable from './CalcTable';
+import './win98.scss';
 import styles from './Calculator.module.scss';
 
 const seed = [
@@ -31,6 +32,10 @@ const seed = [
   '정다원',
 ];
 
+const MIN_NAME_LENGTH = 2;
+const MAX_NAME_LENGTH = 7;
+const HANGUL_NAME_PATTERN = /^[ㄱ-ㅎ가-힣]+$/;
+
 const getAttrFromClosest = (source: any, attrName: any) => {
   const target = source.getAttribute(attrName) ? source : source.closest(`[${attrName}]`);
   if (target) {
@@ -48,7 +53,7 @@ const compareScore = (a: any, b: any) => {
 
 const inputToURI = (userInput: string) => {
   try {
-    return `${location.origin}${location.pathname}?user-input=${encodeURIComponent(userInput)}#result`;
+    return `${location.origin}${location.pathname}?user-input=${encodeURIComponent(userInput)}#user-content-result`;
   } catch (err) {
     /* ignore */
   }
@@ -125,7 +130,7 @@ function Calculator({ onCasesChange }: any) {
     const all = text
       .split(/[\n\s,]/)
       .map((e: any) => e.replace(/\s+/g, ''))
-      .filter((e: any) => e && e.length > 1 && e.length < 5 && e.search(/[^ㄱ-ㅎ가-힣]/) === -1);
+      .filter((e: string) => e.length >= MIN_NAME_LENGTH && e.length <= MAX_NAME_LENGTH && HANGUL_NAME_PATTERN.test(e));
     const items = [];
     for (let x = 0; x < all.length; x += 1) {
       for (let y = 0; y < x; y += 1) {
@@ -217,93 +222,145 @@ function Calculator({ onCasesChange }: any) {
     .join('');
 
   return (
-    <div className={styles.root}>
-      <div className={styles.input}>
-        <TextareaAutosize
-          defaultValue={sample}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          autoComplete="off"
-          spellCheck={false}
-        />
-        {selected && (
-          <>
-            {uri && (
-              <Clipboard data-clipboard-text={uri}>
-                <Octicon name="clippy" />
-                현재 결과 URI 복사
-              </Clipboard>
-            )}
-            <Styled.hr />
-          </>
-        )}
-      </div>
-      <div className={styles.showcase} id="user-content-result">
-        {cases.length > 1 && (
-          <div className={styles.rank}>
-            <div className={styles.search}>
-              <input key={tick} type="text" defaultValue={query} onChange={handleFilterChange} />
-              <div className={styles.icon}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                  <path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
-                </svg>
-              </div>
-            </div>
-            <Styled.ul>
-              {filtered.map((e, i) => {
-                return (
-                  <Styled.li
-                    key={i}
-                    data-case-index={i}
-                    onFocus={handleCaseFocus}
-                    onMouseOver={handleCaseFocus}
-                    className={selected && selected.id === e.id ? styles.selected : ''}
-                    style={getColors(e.score)}
-                  >
-                    <div className={styles.num}>{e.score}</div>
-                    <div className={styles.name}>
-                      <a href="" onClick={handleNameClick}>
-                        {e.names[0]}
-                      </a>
-                      &nbsp;,&nbsp;
-                      <a href="" onClick={handleNameClick}>
-                        {e.names[1]}
-                      </a>
-                    </div>
-                  </Styled.li>
-                );
-              })}
-            </Styled.ul>
+    <div className={`${styles.root} name-compat-win98`}>
+      <div className={`${styles.window} window`}>
+        <div className={`title-bar ${styles.titleBar}`}>
+          <div className={`title-bar-text ${styles.title}`}>
+            <span className={styles.appIcon} />
+            이름궁합.exe
           </div>
-        )}
-        <div className={styles.calc}>
-          {/* {JSON.stringify(selected)} */}
-          {selected && (
-            <div>
-              <div>
-                <Styled.h1 className={styles.names}>
-                  {selected.names[0]}
-                  &nbsp;
-                  <Octicon mega name="x" />
-                  &nbsp;
-                  {selected.names[1]}
-                </Styled.h1>
+          <div className="title-bar-controls" aria-hidden="true">
+            <button aria-label="Minimize" tabIndex={-1} type="button" />
+            <button aria-label="Maximize" tabIndex={-1} type="button" />
+            <button aria-label="Close" tabIndex={-1} type="button" />
+          </div>
+        </div>
+        <div className={styles.menuBar}>
+          <span>File</span>
+          <span>Edit</span>
+          <span>View</span>
+          <span>Name</span>
+          <span>Options</span>
+          <span>Help</span>
+        </div>
+        <div className={`window-body ${styles.windowBody}`}>
+          <div className={styles.workbench}>
+            <div className={styles.toolbox} aria-hidden="true">
+              {['✂', '□', '✎', '▰', '●', '⌕', '▱', 'A', '╲', '⌇', '▭', '▢'].map((tool) => (
+                <span key={tool}>{tool}</span>
+              ))}
+            </div>
+            <div className={`${styles.canvas} sunken-panel`}>
+              <div className={styles.input}>
+                <TextareaAutosize
+                  defaultValue={sample}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+                {selected && uri && (
+                  <Clipboard data-clipboard-text={uri}>
+                    <Octicon name="clippy" />
+                    현재 결과 URI 복사
+                  </Clipboard>
+                )}
               </div>
-              <div>
-                <div className={styles.formula}>
-                  &radic; ( {selected.score1} * {selected.score2} ) = {selected.score}
+              <div className={styles.showcase} id="user-content-result">
+                {cases.length > 1 && (
+                  <div className={`${styles.rank} sunken-panel`}>
+                    <div className={styles.search}>
+                      <input key={tick} type="search" defaultValue={query} onChange={handleFilterChange} />
+                      <div className={styles.icon}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                          <path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <Styled.ul>
+                      {filtered.map((e, i) => {
+                        return (
+                          <Styled.li
+                            key={i}
+                            data-case-index={i}
+                            onFocus={handleCaseFocus}
+                            onMouseOver={handleCaseFocus}
+                            className={selected && selected.id === e.id ? styles.selected : ''}
+                            style={getColors(e.score)}
+                          >
+                            <div className={styles.num}>{e.score}</div>
+                            <div className={styles.name}>
+                              <a href="" onClick={handleNameClick}>
+                                {e.names[0]}
+                              </a>
+                              &nbsp;,&nbsp;
+                              <a href="" onClick={handleNameClick}>
+                                {e.names[1]}
+                              </a>
+                            </div>
+                          </Styled.li>
+                        );
+                      })}
+                    </Styled.ul>
+                  </div>
+                )}
+                <div className={styles.calc}>
+                  {/* {JSON.stringify(selected)} */}
+                  {selected && (
+                    <div>
+                      <div>
+                        <Styled.h1 className={styles.names}>
+                          <span className={styles.nameText}>{selected.names[0]}</span>
+                          <Octicon mega name="x" />
+                          <span className={styles.nameText}>{selected.names[1]}</span>
+                        </Styled.h1>
+                      </div>
+                      <div>
+                        <div className={styles.formula}>
+                          &radic; ( {selected.score1} * {selected.score2} ) = {selected.score}
+                        </div>
+                      </div>
+                      <div>
+                        <div>
+                          <CalcTable {...selected.info1} />
+                        </div>
+                        <div>
+                          <CalcTable {...selected.info2} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-              <div>
-                <div>
-                  <CalcTable {...selected.info1} />
-                </div>
-                <div>
-                  <CalcTable {...selected.info2} />
-                </div>
+              <div className={styles.palette} aria-hidden="true">
+                {[
+                  '#000000',
+                  '#ffffff',
+                  '#808080',
+                  '#c0c0c0',
+                  '#800000',
+                  '#ff0000',
+                  '#808000',
+                  '#ffff00',
+                  '#008000',
+                  '#00ff00',
+                  '#008080',
+                  '#00ffff',
+                  '#000080',
+                  '#0000ff',
+                  '#800080',
+                  '#ff00ff',
+                ].map((color) => (
+                  <span key={color} style={{ background: color }} />
+                ))}
               </div>
             </div>
-          )}
+          </div>
+        </div>
+        <div className={`status-bar ${styles.statusBar}`}>
+          <p className="status-bar-field">Ready</p>
+          <p className="status-bar-field">{cases.length} matches</p>
+          <p className="status-bar-field">2-7 Hangul blocks</p>
         </div>
       </div>
     </div>

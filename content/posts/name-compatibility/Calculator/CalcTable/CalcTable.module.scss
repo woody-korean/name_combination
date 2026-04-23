@@ -16,8 +16,10 @@
 //
 // }
 .root {
-  padding: 0 1rem;
   margin-bottom: 1.75rem;
+  overflow-x: auto;
+  padding: 0 0.5rem 0.5rem;
+  -webkit-overflow-scrolling: touch;
 }
 .chars {
   display: flex;
@@ -33,31 +35,19 @@
     font-size: 2rem;
     margin-bottom: 0.5rem;
     > div {
-      width: 44px;
+      background: #c7e4ff;
+      box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #6d8fb6, inset 2px 2px #dfdfdf;
+      color: #000;
       height: 44px;
       line-height: 42px;
       padding: 0;
       text-align: center;
-      border-radius: 0.3em;
-      @apply bg-blue-200 border-solid border-0 border-b-4 border-blue-400 rounded;
+      width: 44px;
     }
     &.odd {
       > div {
-        @apply bg-red-200 border-solid border-0 border-b-4 border-red-400 rounded;
-      }
-    }
-  }
-}
-:global(.dark) {
-  .chars {
-    > li {
-      > div {
-        @apply bg-blue-900 border-solid border-0 border-b-4 border-blue-700 rounded;
-      }
-      &.odd {
-        > div {
-          @apply bg-red-900 border-solid border-0 border-b-4 border-red-700 rounded;
-        }
+        background: #ffd2cf;
+        box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #b36d69, inset 2px 2px #dfdfdf;
       }
     }
   }
@@ -72,18 +62,21 @@
     display: flex;
     flex-direction: column;
     flex-grow: 0;
-    text-align: center;
-    justify-content: center;
-    font-family: Merriweather;
+    font-family: 'Pixelated MS Sans Serif', Georgia, serif;
     font-weight: bold;
+    justify-content: center;
+    text-align: center;
     .shim {
-      margin-left: 5%;
-      width: 90%;
-      height: 20px;
       border: 1px dashed #888;
       border-top: none;
+      height: 20px;
+      margin-left: 5%;
+      width: 90%;
     }
     .num {
+      color: #000;
+      font-size: 14px;
+      line-height: 1.6;
     }
   }
 }
